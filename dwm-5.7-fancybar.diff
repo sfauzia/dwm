@@ -1,0 +1,126 @@
+diff -r de4a2998e1f5 dwm.c
+--- a/dwm.c	Tue Sep 22 09:53:11 2009 +0100
++++ b/dwm.c	Tue Sep 22 12:32:15 2009 +0200
+@@ -171,6 +171,7 @@
+ static Monitor *dirtomon(int dir);
+ static void drawbar(Monitor *m);
+ static void drawbars(void);
++static void drawvline(unsigned long col[ColLast]);
+ static void drawsquare(Bool filled, Bool empty, Bool invert, unsigned long col[ColLast]);
+ static void drawtext(const char *text, unsigned long col[ColLast], Bool invert);
+ static void enternotify(XEvent *e);
+@@ -668,12 +669,15 @@
+ 
+ void
+ drawbar(Monitor *m) {
+-	int x;
+-	unsigned int i, occ = 0, urg = 0;
++	int x, ow, mw = 0, extra, tw;
++	unsigned int i, n = 0, occ = 0, urg = 0;
+ 	unsigned long *col;
+-	Client *c;
++	Client *c, *firstvis, *lastvis = NULL;
++	DC seldc;
+ 
+ 	for(c = m->clients; c; c = c->next) {
++		if(ISVISIBLE(c))
++			n++;
+ 		occ |= c->tags;
+ 		if(c->isurgent)
+ 			urg |= c->tags;
+@@ -702,16 +706,62 @@
+ 	}
+ 	else
+ 		dc.x = m->ww;
+-	if((dc.w = dc.x - x) > bh) {
+-		dc.x = x;
+-		if(m->sel) {
+-			col = m == selmon ? dc.sel : dc.norm;
+-			drawtext(m->sel->name, col, False);
+-			drawsquare(m->sel->isfixed, m->sel->isfloating, False, col);
++
++	for(c = m->clients; c && !ISVISIBLE(c); c = c->next);
++	firstvis = c;
++
++	col = m == selmon ? dc.sel : dc.norm;
++	dc.w = dc.x - x;
++	dc.x = x;
++
++	if(n > 0) {
++		mw = dc.w / n;
++		extra = 0;
++		seldc = dc;
++		i = 0;
++
++		while(c) {
++			lastvis = c;
++			tw = TEXTW(c->name);
++			if(tw < mw) extra += (mw - tw); else i++;
++			for(c = c->next; c && !ISVISIBLE(c); c = c->next);
+ 		}
+-		else
++
++		if(i > 0) mw += extra / i;
++
++		c = firstvis;
++		x = dc.x;
++	}
++
++	while(dc.w > bh) {
++		if(c) {
++			ow = dc.w;
++			tw = TEXTW(c->name);
++			dc.w = MIN(ow, tw);
++
++			if(dc.w > mw) dc.w = mw;
++			if(m->sel == c) seldc = dc;
++			if(c == lastvis) dc.w = ow;
++
++			drawtext(c->name, col, True);
++			if(c != firstvis) drawvline(col);
++			drawsquare(c->isfixed, c->isfloating, False, col);
++
++			dc.x += dc.w;
++			dc.w = ow - dc.w;
++			for(c = c->next; c && !ISVISIBLE(c); c = c->next);
++		} else {
+ 			drawtext(NULL, dc.norm, False);
++			break;
++		}
+ 	}
++
++	if(m == selmon && m->sel && ISVISIBLE(m->sel)) {
++		dc = seldc;
++		drawtext(m->sel->name, col, False);
++		drawsquare(m->sel->isfixed, m->sel->isfloating, True, col);
++	}
++
+ 	XCopyArea(dpy, dc.drawable, m->barwin, dc.gc, 0, 0, m->ww, bh, 0, 0);
+ 	XSync(dpy, False);
+ }
+@@ -725,6 +775,15 @@
+ }
+ 
+ void
++drawvline(unsigned long col[ColLast]) {
++	XGCValues gcv;
++
++	gcv.foreground = col[ColBG];
++	XChangeGC(dpy, dc.gc, GCForeground, &gcv);
++	XDrawLine(dpy, dc.drawable, dc.gc, dc.x, dc.y, dc.x, dc.y + (dc.font.ascent + dc.font.descent + 2));
++}
++
++void
+ drawsquare(Bool filled, Bool empty, Bool invert, unsigned long col[ColLast]) {
+ 	int x;
+ 	XGCValues gcv;
+@@ -1274,8 +1333,7 @@
+ 		}
+ 		if(ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName]) {
+ 			updatetitle(c);
+-			if(c == c->mon->sel)
+-				drawbar(c->mon);
++			drawbar(c->mon);
+ 		}
+ 	}
+ }

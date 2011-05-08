@@ -1,0 +1,83 @@
+diff -ru dwm-5.6.1/dwm.c dwm-5.6.1-cpt/dwm.c
+--- dwm-5.6.1/dwm.c	2009-07-26 15:01:50.000000000 +0200
++++ dwm-5.6.1-cpt/dwm.c	2009-09-13 18:08:50.000000000 +0200
+@@ -268,12 +268,23 @@
+ static Window root;
+ 
+ /* configuration, allows nested code to access above variables */
++static int cpt = -1;
++static void clientspertag(const Arg *arg) {
++	const char *cmd = (const char *)arg->v;
++	if (cmd[0]=='^') {
++		if (cpt==-1) cpt = atoi(cmd+1);
++		else if (cpt==atoi(cmd+1)) cpt = -1;
++		else cpt = atoi(cmd+1);
++	} else cpt = atoi(cmd);
++ 	arrange(selmon);
++}
+ #include "config.h"
+ 
+ /* compile-time check if all tags fit into an unsigned int bit array. */
+ struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
+ 
+ /* function implementations */
++
+ void
+ applyrules(Client *c) {
+ 	const char *class, *instance;
+@@ -261,7 +261,7 @@
+ 
+ /* variables */
+ static const char broken[] = "broken";
+-static char stext[256];
++static char stext[256], ntext[8];
+ static int screen;
+ static int sw, sh;           /* X display screen geometry width, height */
+ static int bh, blw = 0;      /* bar geometry */
+@@ -754,6 +754,11 @@
+        drawtext(posbuf, dc.norm, False);
+        x= dc.x + dc.w;
+    }
++
++    snprintf(ntext, sizeof ntext, "%d/%u", cpt, n);
++    dc.w = TEXTW(ntext);
++    drawtext(ntext, dc.norm, False);
++    x = (dc.x += dc.w);
+    
+    if(m == selmon) { /* status is only drawn on selected monitor */
+        dc.w = TEXTW(stext);
+@@ -1435,6 +1446,7 @@
+ 	sw = DisplayWidth(dpy, screen);
+ 	sh = DisplayHeight(dpy, screen);
+ 	bh = dc.h = dc.font.height + 2;
++	cpt = -1;
+ 	updategeom();
+ 	/* init atoms */
+ 	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
+@@ -1549,6 +1561,7 @@
+ 	for(n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+ 	if(n == 0)
+ 		return;
++	if (cpt!=-1 && n>cpt) n = cpt;
+ 	/* master */
+ 	c = nexttiled(m->clients);
+ 	mw = m->mfact * m->ww;
+@@ -1563,10 +1576,15 @@
+ 	if(h < bh)
+ 		h = m->wh;
+ 	for(i = 0, c = nexttiled(c->next); c; c = nexttiled(c->next), i++) {
+-		resize(c, x, y, w - 2 * c->bw, /* remainder */ ((i + 1 == n)
+-		       ? m->wy + m->wh - y - 2 * c->bw : h - 2 * c->bw), False);
+-		if(h != m->wh)
+-			y = c->y + HEIGHT(c);
++		if (cpt!=-1 && i>=cpt) {
++			resize(c, x, m->wy, w - 2 * c->bw, /* remainder */ ((i + 1 == n)
++			       ? m->wy + m->wh - y - 2 * c->bw : h - 2 * c->bw), False);
++		} else {
++			resize(c, x, y, w - 2 * c->bw, /* remainder */ ((i + 1 == n)
++			       ? m->wy + m->wh - y - 2 * c->bw : h - 2 * c->bw), False);
++			if(h != m->wh)
++				y = c->y + HEIGHT(c);
++		}
+ 	}
+ }

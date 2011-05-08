@@ -1,0 +1,41 @@
+--- a/config.def.h  Thu Dec 02 10:16:47 2010 +0000
++++ b/config.def.h  Fri Jan 07 08:50:42 2011 +0100
+@@ -9,6 +9,7 @@
+ static const char selbgcolor[]      = "#0066ff";
+ static const char selfgcolor[]      = "#ffffff";
+ static const unsigned int borderpx  = 1;        /* border pixel of windows */
++static const unsigned int gappx     = 6;        /* gap pixel between windows */
+ static const unsigned int snap      = 32;       /* snap pixel */
+ static const Bool showbar           = True;     /* False means no bar */
+ static const Bool topbar            = True;     /* False means bottom bar */
+--- a/dwm.c	2010-06-04 06:39:15.000000000 -0400
++++ b/dwm.c	2011-05-08 02:49:05.763449603 -0400
+@@ -274,6 +274,7 @@
+ static DC dc;
+ static Monitor *mons = NULL, *selmon = NULL;
+ static Window root;
++static int globalborder ;
+ 
+ /* configuration, allows nested code to access above variables */
+ #include "config.h"
+@@ -1345,10 +1346,16 @@
+ resizeclient(Client *c, int x, int y, int w, int h) {
+ 	XWindowChanges wc;
+ 
+-	c->oldx = c->x; c->x = wc.x = x;
+-	c->oldy = c->y; c->y = wc.y = y;
+-	c->oldw = c->w; c->w = wc.width = w;
+-	c->oldh = c->h; c->h = wc.height = h;
++	if(c->isfloating || selmon->lt[selmon->sellt]->arrange == NULL) { globalborder = 0 ; }
++	else {
++		if (selmon->lt[selmon->sellt]->arrange == monocle) { globalborder = 0 - borderpx ; }
++		else { globalborder =  gappx ; }
++	}
++
++	c->oldx = c->x; c->x = wc.x = x + globalborder ;
++	c->oldy = c->y; c->y = wc.y = y + globalborder ;
++	c->oldw = c->w; c->w = wc.width = w - 2 * globalborder ;
++	c->oldh = c->h; c->h = wc.height = h - 2 * globalborder ;
+ 	wc.border_width = c->bw;
+ 	XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
+ 	configure(c);
