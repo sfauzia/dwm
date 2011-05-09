@@ -23,7 +23,8 @@ source=(http://dl.suckless.org/dwm/dwm-$pkgver.tar.gz \
 	dwm-5.7.2-attachaside.diff \
 	dwm-5.7-fancybar.diff \
 	focusmaster.c \
-	push.c)
+	push.c \
+	tilemovemouse.c)
 md5sums=('f0b422bfeaa812d66c6dd15c3cc92a6b'
          '939f403a71b6e85261d09fc3412269ee'
          '39a557beb09afe4e727bc4aed64b2cd6'
@@ -42,6 +43,7 @@ build() {
   cp $srcdir/config.h config.h
   cp $srcdir/focusmaster.c focusmaster.c
   cp $srcdir/push.c push.c
+  cp $srcdir/tilemovemouse.c tilemovemouse.c
 
   sed -i 's/CPPFLAGS =/CPPFLAGS +=/g' config.mk
   sed -i 's/CFLAGS =/CFLAGS +=/g' config.mk
