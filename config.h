@@ -15,17 +15,22 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { ".", ":", ".:", "::", ".::" };
 
 static const Rule rules[] = {
 	/* class      	instance    title       tags mask     isfloating   monitor */
 	{ "Cellwriter", NULL,       NULL,       ~0,           True,        -1 },
-	{ "MPlayer",   	NULL,       NULL,       0,            True,        -1 },
-	{ "Skype",   	NULL,       NULL,       0,            True,        -1 },
+	{ "URxvt",      NULL,       NULL,       1 << 0,       False,       -1 },
+	{ "sxiv",       NULL,       NULL,       1 << 1,       False,       -1 },
+	{ "MPlayer",   	NULL,       NULL,       1 << 2,       True,        -1 },
+	{ "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
+	{ "Lss",   	    NULL,       NULL,       1 << 4,       False,       -1 },
+	{ "Skype",   	NULL,       NULL,       1 << 4,       True,        -1 },
+	{ "Xournal",   	NULL,       NULL,       1 << 4,       False,       -1 },
 };
 
 /* layout(s) */
-static const float mfact      = 0.55; /* factor of master area size [0.05..0.95] */
+static const float mfact      = 0.55;  /* factor of master area size [0.05..0.95] */
 static const Bool resizehints = False; /* True means respect size hints in tiled resizals */
 
 #include "bstack.c"
@@ -111,10 +116,6 @@ static Key keys[] = {
 	TAGKEYS(                        XK_3,                      					2)
 	TAGKEYS(                        XK_4,                      					3)
 	TAGKEYS(                        XK_5,                      					4)
-	TAGKEYS(                        XK_6,                      					5)
-	TAGKEYS(                        XK_7,                      					6)
-	TAGKEYS(                        XK_8,                      					7)
-	TAGKEYS(                        XK_9,                      					8)
 	{ MODKEY|ShiftMask,             XK_q,      					quit,           {0} },
 };
 
