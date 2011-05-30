@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const char font[]            = "04b03 6";
+static const char font[]            = "Haeccity DW 7";
 static const char normbordercolor[] = "#e0e0e0";
 static const char normbgcolor[]     = "#222222";
 static const char normfgcolor[]     = "#ffffff";
@@ -15,7 +15,7 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { ".", ":", ".:", "::", ".::" };
+static const char *tags[] = { "⌨", "☀", "♫", "✈", "✎" };
 
 static const Rule rules[] = {
 	/* class      	instance    title       tags mask     isfloating   monitor */
@@ -24,8 +24,9 @@ static const Rule rules[] = {
 	{ "sxiv",       NULL,       NULL,       1 << 1,       False,       -1 },
 	{ "MPlayer",   	NULL,       NULL,       1 << 2,       True,        -1 },
 	{ "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
+	{ "Skype",   	NULL,       NULL,       1 << 3,       True,        -1 },
 	{ "Lss",   	    NULL,       NULL,       1 << 4,       False,       -1 },
-	{ "Skype",   	NULL,       NULL,       1 << 4,       True,        -1 },
+	{ "MuPDF",   	NULL,       NULL,       1 << 4,       False,       -1 },
 	{ "Xournal",   	NULL,       NULL,       1 << 4,       False,       -1 },
 };
 
@@ -37,11 +38,11 @@ static const Bool resizehints = False; /* True means respect size hints in tiled
 #include "bstackhoriz.c"
 static const Layout layouts[] = {
 	/* symbol     arrange function */
-	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
-	{ "[M]",      monocle },
-    { "TTT",      bstack },
-    { "===",      bstackhoriz },
+	{ "▥",        tile },    /* first entry is default */
+	{ "▣",        NULL },    /* no layout function means floating behavior */
+	{ "□",        monocle },
+    { "▤",        bstack },
+    { "⌸",        bstackhoriz },
 };
 
 /* key definitions */
@@ -56,7 +57,7 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[]    = { "dmenu_run", "-fn", "04b03-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
+static const char *dmenucmd[]    = { "dmenu_run", "-fn", "Haeccity DW-7", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]     = { "urxvt", NULL };
 static const char *rotatecmd[]   = { "rotate", NULL };
 static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
