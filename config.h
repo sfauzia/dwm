@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const char font[]            = "Haeccity DW 7";
+static const char font[]            = "Skinny 6";
 static const char normbordercolor[] = "#e0e0e0";
 static const char normbgcolor[]     = "#222222";
 static const char normfgcolor[]     = "#ffffff";
@@ -15,7 +15,7 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "⌨", "☀", "♫", "✈", "✎" };
+static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "NOTES" };	
 
 static const Rule rules[] = {
 	/* class      	instance    title       tags mask     isfloating   monitor */
@@ -37,12 +37,12 @@ static const Bool resizehints = False; /* True means respect size hints in tiled
 #include "bstack.c"
 #include "bstackhoriz.c"
 static const Layout layouts[] = {
-	/* symbol     arrange function */
-	{ "▥",        tile },    /* first entry is default */
-	{ "▣",        NULL },    /* no layout function means floating behavior */
-	{ "□",        monocle },
-    { "▤",        bstack },
-    { "⌸",        bstackhoriz },
+	/* symbol     	arrange function */
+	{ "[]=",        tile },    /* first entry is default */
+	{ "><>",        NULL },    /* no layout function means floating behavior */
+	{ "[M]",        monocle },
+    { "TTT",        bstack },
+    { "===",        bstackhoriz },
 };
 
 /* key definitions */
@@ -57,7 +57,7 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *dmenucmd[]    = { "dmenu_run", "-fn", "Haeccity DW-7", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
+static const char *dmenucmd[]    = { "dmenu_run", "-fn", "Skinny-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *termcmd[]     = { "urxvt", NULL };
 static const char *rotatecmd[]   = { "rotate", NULL };
 static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
