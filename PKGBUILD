@@ -22,6 +22,7 @@ source=(http://dl.suckless.org/dwm/dwm-$pkgver.tar.gz \
 	dwm-5.8-pango.patch \
 	dwm-5.7.2-attachaside.diff \
 	dwm-5.7-fancybar.diff \
+	dwm-fancybarclickable.diff \
 	focusmaster.c \
 	push.c \
 	tilemovemouse.c)
@@ -50,7 +51,7 @@ build() {
   sed -i 's/LDFLAGS =/LDFLAGS +=/g' config.mk
 
   patch -p1 -i $srcdir/dwm-5.8-pango.patch || return 1
-  patch -p1 -i $srcdir/dwm-5.7-fancybar.diff || return 1
+  patch -p1 -i $srcdir/dwm-fancybarclickable.diff || return 1
   patch -p1 -i $srcdir/dwm-5.7.2-attachaside.diff || return 1
   patch -p1 -i $srcdir/dwm-5.8.2-bstack.diff || return 1
   patch -p1 -i $srcdir/dwm-5.8.2-cellwriter.diff || return 1

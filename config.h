@@ -34,15 +34,15 @@ static const Rule rules[] = {
 static const float mfact      = 0.55;  /* factor of master area size [0.05..0.95] */
 static const Bool resizehints = False; /* True means respect size hints in tiled resizals */
 
-#include "bstack.c"
-#include "bstackhoriz.c"
+/* #include "bstack.c"
+#include "bstackhoriz.c" */
 static const Layout layouts[] = {
 	/* symbol     	arrange function */
 	{ "[]=",        tile },    /* first entry is default */
 	{ "><>",        NULL },    /* no layout function means floating behavior */
 	{ "[M]",        monocle },
-    { "TTT",        bstack },
-    { "===",        bstackhoriz },
+/*    { "TTT",        bstack },
+    { "===",        bstackhoriz }, */
 };
 
 /* key definitions */
@@ -127,6 +127,7 @@ static Button buttons[] = {
 	/* click                event mask      button          function        argument */
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
+	{ ClkWinTitle,          0,              Button1,        focusonclick,   {0} },
 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
 /*	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} }, */
