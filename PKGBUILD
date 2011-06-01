@@ -21,7 +21,6 @@ source=(http://dl.suckless.org/dwm/dwm-$pkgver.tar.gz \
 	dwm-5.8.2-uselessgap.diff \
 	dwm-5.8-pango.patch \
 	dwm-5.7.2-attachaside.diff \
-	dwm-5.7-fancybar.diff \
 	dwm-fancybarclickable.diff \
 	focusmaster.c \
 	push.c \

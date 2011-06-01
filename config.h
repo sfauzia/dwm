@@ -15,7 +15,7 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "NOTES" };	
+static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOCS" };	
 
 static const Rule rules[] = {
 	/* class      	instance    title       tags mask     isfloating   monitor */
@@ -34,15 +34,15 @@ static const Rule rules[] = {
 static const float mfact      = 0.55;  /* factor of master area size [0.05..0.95] */
 static const Bool resizehints = False; /* True means respect size hints in tiled resizals */
 
-/* #include "bstack.c"
-#include "bstackhoriz.c" */
+#include "bstack.c"
+#include "bstackhoriz.c" 
 static const Layout layouts[] = {
 	/* symbol     	arrange function */
 	{ "[]=",        tile },    /* first entry is default */
 	{ "><>",        NULL },    /* no layout function means floating behavior */
 	{ "[M]",        monocle },
-/*    { "TTT",        bstack },
-    { "===",        bstackhoriz }, */
+    { "TTT",        bstack },
+    { "===",        bstackhoriz }, 
 };
 
 /* key definitions */
@@ -57,17 +57,18 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
+static const char *calcmd[]      = { "urxvtc", "-hold", "-title", "remind", "-e", "bash", "-c", "rem -n | sort", NULL };
 static const char *dmenucmd[]    = { "dmenu_run", "-fn", "Skinny-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
-static const char *termcmd[]     = { "urxvt", NULL };
-static const char *rotatecmd[]   = { "rotate", NULL };
-static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
 static const char *dnscrollcmd[] = { "xte", "mouseclick 5", NULL };
-static const char *printcmd[]    = { "scrot", NULL };
-static const char *notecmd[]     = { "xournal", NULL };
-static const char *webcmd[]      = { "surf", "http://home.archlinux.ca", NULL };
-static const char *raisevolcmd[] = { "amixer", "-q", "sset", "Master", "5+", NULL };
 static const char *lowervolcmd[] = { "amixer", "-q", "sset", "Master", "5-", NULL };
 static const char *mutevolcmd[]  = { "amixer", "-q", "sset", "Master", "toggle", NULL };
+static const char *notecmd[]     = { "xournal", NULL };
+static const char *printcmd[]    = { "scrot", NULL };
+static const char *raisevolcmd[] = { "amixer", "-q", "sset", "Master", "5+", NULL };
+static const char *rotatecmd[]   = { "rotate", NULL };
+static const char *termcmd[]     = { "urxvtc", NULL };
+static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
+static const char *webcmd[]      = { "surf", "http://home.archlinux.ca", NULL };
 
 #include "focusmaster.c"
 #include "push.c" 
@@ -94,8 +95,6 @@ static Key keys[] = {
 	{ MODKEY,                       XK_l,      					setmfact,       {.f = +0.05} },
     { MODKEY|ShiftMask,             XK_j,      					pushdown,       {0} },
 	{ MODKEY|ShiftMask,             XK_k,      					pushup,         {0} },
-/*	{ MODKEY,        				XK_p,      					clientspertag,  {.v="^2"} },
-	{ MODKEY,        				XK_q,      					clientspertag,  {.v="^3"} }, */
 	{ MODKEY,                       XK_Return, 					zoom,           {0} },
 	{ MODKEY,                       XK_Tab,    					view,           {0} },
 	{ MODKEY|ShiftMask,             XK_c,      					killclient,     {0} },
@@ -128,8 +127,8 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button1,        focusonclick,   {0} },
-	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
-	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+	{ ClkWinTitle,          0,              Button3,        zoom,           {0} },
+	{ ClkStatusText,        0,              Button1,        spawn,          {.v = calcmd } },
 /*	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} }, */
 	{ ClkClientWin,         MODKEY,         Button1,        tilemovemouse,  {0} },
 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
@@ -139,4 +138,3 @@ static Button buttons[] = {
 	{ ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
 };
-
