@@ -5,7 +5,7 @@ dwm 5.8.2-2 patched with the following patches from suckless.org (maybe slightly
     - uselessgap
     - pango
 
-I have added the following code to dwm:
+I have added the following code to dwm (the first is from the ML, and the other two are from suckless.org):
     - focusmaster 
     - tilemovemouse (updated to work with dwm > 5.5)
     - push  
