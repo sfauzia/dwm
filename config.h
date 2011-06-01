@@ -15,7 +15,7 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOCS" };	
+static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOC" };	
 
 static const Rule rules[] = {
 	/* class      	instance    title       tags mask     isfloating   monitor */
