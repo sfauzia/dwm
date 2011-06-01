@@ -127,7 +127,9 @@ static Button buttons[] = {
 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
 	{ ClkWinTitle,          0,              Button1,        focusonclick,   {0} },
-	{ ClkWinTitle,          0,              Button3,        zoom,           {0} },
+	{ ClkWinTitle,          MODKEY,         Button1,        pushup,         {0} }, 
+	{ ClkWinTitle,          MODKEY,         Button3,        pushdown,       {0} }, 
+	{ ClkWinTitle,          0,              Button3,        zoom,           {0} }, 
 	{ ClkStatusText,        0,              Button1,        spawn,          {.v = calcmd } },
 /*	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} }, */
 	{ ClkClientWin,         MODKEY,         Button1,        tilemovemouse,  {0} },
