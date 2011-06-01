@@ -1,0 +1,17 @@
+dwm 5.8.2-2 patched with the following patches from suckless.org (maybe slightly modified to patch properly):
+    - attachaside
+    - bstack
+    - ICCM take focus
+    - uselessgap
+    - pango
+
+I have added the following code to dwm:
+    - focusmaster 
+    - tilemovemouse (updated to work with dwm > 5.5)
+    - push  
+
+I have also combined fancybar (from suckless.org) and the code that makes the fancybar clickable from the fancycoloredclickablebar patch (also from suckless.org), to make a new patch, fancyclickablebar. I did this because I found the fancycoloredclickablebar code too complicated for my purposes, and it was easier to patch fancybar to work with my setup, and add in the clickable functionality.
+
+Then I've changed some program rules, tag names, keybindings, and mouse bindings. My setup is optimized for using dwm with my convertible tablet PC, hence why I've bothered with some of the mouse-related code like tilemovemouse.  
+
+I've also supplied my PKGBUILD (for use with ArchLinux), which also shows the order I use for the patches to work. Currently, pertag breaks all my patches, and until I have the time to manually patch everything to work with pertag, I'm not using it.
