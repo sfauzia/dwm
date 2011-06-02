@@ -22,6 +22,7 @@ static const Rule rules[] = {
 	{ "Cellwriter", NULL,       NULL,       ~0,           True,        -1 },
 	{ "URxvt",      NULL,       NULL,       1 << 0,       False,       -1 },
 	{ "sxiv",       NULL,       NULL,       1 << 1,       False,       -1 },
+	{ "Xsvg",       NULL,       NULL,       1 << 1,       False,       -1 },
 	{ "MPlayer",   	NULL,       NULL,       1 << 2,       True,        -1 },
 	{ "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
 	{ "Skype",   	NULL,       NULL,       1 << 3,       True,        -1 },
