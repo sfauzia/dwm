@@ -1,6 +1,6 @@
 dwm 5.8.2-2 patched with the following patches from suckless.org:
     - attachaside
-	- pertag
+    - pertag
     - bstack
     - ICCM take focus
     - uselessgap
