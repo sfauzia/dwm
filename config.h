@@ -35,8 +35,6 @@ static const Rule rules[] = {
 static const float mfact      = 0.55;  /* factor of master area size [0.05..0.95] */
 static const Bool resizehints = False; /* True means respect size hints in tiled resizals */
 
-#include "bstack.c"
-#include "bstackhoriz.c" 
 static const Layout layouts[] = {
 	/* symbol     	arrange function */
 	{ "[]=",        tile },    /* first entry is default */
@@ -71,8 +69,6 @@ static const char *termcmd[]     = { "urxvtc", NULL };
 static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
 static const char *webcmd[]      = { "surf", "http://home.archlinux.ca", NULL };
 
-#include "focusmaster.c"
-#include "push.c" 
 #include <X11/XF86keysym.h>
 static Key keys[] = {
 	/* modifier                     key        					function        argument */
@@ -120,7 +116,6 @@ static Key keys[] = {
 	{ MODKEY|ShiftMask,             XK_q,      					quit,           {0} },
 };
 
-#include "tilemovemouse.c"
 /* button definitions */
 /* click can be ClkLtSymbol, ClkStatusText, ClkWinTitle, ClkClientWin, or ClkRootWin */
 static Button buttons[] = {
