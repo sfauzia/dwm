@@ -15,7 +15,7 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOC" };    
+static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOC", "TMP" };    
 
 static const Rule rules[] = {
     /* class        instance    title       tags mask     isfloating   monitor */
@@ -113,6 +113,7 @@ static Key keys[] = {
     TAGKEYS(                        XK_3,                                       2)
     TAGKEYS(                        XK_4,                                       3)
     TAGKEYS(                        XK_5,                                       4)
+    TAGKEYS(                        XK_6,                                       5)
     { MODKEY|ShiftMask,             XK_q,                       quit,           {0} },
 };
 
