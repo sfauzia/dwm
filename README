@@ -1,5 +1,6 @@
-dwm 5.8.2-2 patched with the following patches from suckless.org (maybe slightly modified to patch properly):
+dwm 5.8.2-2 patched with the following patches from suckless.org:
     - attachaside
+	- pertag
     - bstack
     - ICCM take focus
     - uselessgap
@@ -14,6 +15,6 @@ I have also combined fancybar (from suckless.org) and the code that makes the fa
 
 Then I've changed some program rules, tag names, keybindings, and mouse bindings. My setup is optimized for using dwm with my convertible tablet PC, hence why I've bothered with some of the mouse-related code like tilemovemouse.  
 
-I've also supplied my PKGBUILD (for use with ArchLinux), which also shows the order I use for the patches to work. Currently, pertag breaks all my patches, and until I have the time to manually patch everything to work with pertag, I'm not using it.
+I've also supplied my PKGBUILD (for use with ArchLinux).
 
 In the patches folder are patches I'm not currently using, but I might use later, or dwm code that I find interesting.  
