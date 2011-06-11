@@ -1,3 +1,13 @@
+--- a/config.def.h	2010-06-04 06:39:15.000000000 -0400
++++ b/config.def.h	2011-06-11 09:30:07.032880714 -0400
+@@ -89,6 +89,7 @@
+ 	/* click                event mask      button          function        argument */
+ 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
+ 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
++    { ClkWinTitle,          0,              Button1,        focusonclick,   {0} },
+ 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
+ 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+ 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
 --- a/dwm.c	2010-06-04 06:39:15.000000000 -0400
 +++ b/dwm.c	2011-05-31 10:36:47.906683796 -0400
 @@ -140,6 +140,8 @@
