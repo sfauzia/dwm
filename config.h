@@ -25,6 +25,7 @@ static const Rule rules[] = {
     { "Xsvg",       NULL,       NULL,       1 << 1,       False,       -1 },
     { "MPlayer",    NULL,       NULL,       1 << 2,       True,        -1 },
     { "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
+    { "Chromium",   NULL,       NULL,       1 << 3,       False,       -1 },
     { "Skype",      NULL,       NULL,       1 << 3,       True,        -1 },
     { "Lss",        NULL,       NULL,       1 << 4,       False,       -1 },
     { "MuPDF",      NULL,       NULL,       1 << 4,       False,       -1 },
@@ -67,7 +68,7 @@ static const char *raisevolcmd[] = { "amixer", "-q", "sset", "Master", "5+", NUL
 static const char *rotatecmd[]   = { "rotate", NULL };
 static const char *termcmd[]     = { "urxvtc", NULL };
 static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
-static const char *webcmd[]      = { "surf", "http://home.archlinux.ca", NULL };
+static const char *webcmd[]      = { "surf", "http://arch.pyther.net", NULL };
 
 #include <X11/XF86keysym.h>
 static Key keys[] = {
