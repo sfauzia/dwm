@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const char font[]            = "Skinny 6";
+static const char font[]            = "kroeger 05_55 caps 6";
 static const char normbordercolor[] = "#e0e0e0";
 static const char normbgcolor[]     = "#222222";
 static const char normfgcolor[]     = "#ffffff";
@@ -20,13 +20,13 @@ static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOC", "TMP" };
 static const Rule rules[] = {
     /* class        instance    title       tags mask     isfloating   monitor */
     { "Cellwriter", NULL,       NULL,       ~0,           True,        -1 },
+    { "Florence", 	NULL,       NULL,       ~0,           True,        -1 },
     { "URxvt",      NULL,       NULL,       1 << 0,       False,       -1 },
     { "sxiv",       NULL,       NULL,       1 << 1,       False,       -1 },
     { "Xsvg",       NULL,       NULL,       1 << 1,       False,       -1 },
     { "MPlayer",    NULL,       NULL,       1 << 2,       True,        -1 },
     { "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
     { "Chromium",   NULL,       NULL,       1 << 3,       False,       -1 },
-    { "Skype",      NULL,       NULL,       1 << 3,       True,        -1 },
     { "Lss",        NULL,       NULL,       1 << 4,       False,       -1 },
     { "MuPDF",      NULL,       NULL,       1 << 4,       False,       -1 },
     { "Xournal",    NULL,       NULL,       1 << 4,       False,       -1 },
@@ -58,7 +58,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static const char *calcmd[]      = { "urxvtc", "-hold", "-title", "remind", "-e", "bash", "-c", "rem -n | sort", NULL };
-static const char *dmenucmd[]    = { "dmenu_run", "-fn", "Skinny-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
+static const char *dmenucmd[]    = { "dmenu_run", "-fn", "kroeger 05_55 caps-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
 static const char *dnscrollcmd[] = { "xte", "mouseclick 5", NULL };
 static const char *lowervolcmd[] = { "amixer", "-q", "sset", "Master", "5-", NULL };
 static const char *mutevolcmd[]  = { "amixer", "-q", "sset", "Master", "toggle", NULL };
@@ -68,7 +68,6 @@ static const char *raisevolcmd[] = { "amixer", "-q", "sset", "Master", "5+", NUL
 static const char *rotatecmd[]   = { "rotate", NULL };
 static const char *termcmd[]     = { "urxvtc", NULL };
 static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
-static const char *webcmd[]      = { "surf", "http://arch.pyther.net", NULL };
 
 #include <X11/XF86keysym.h>
 static Key keys[] = {
@@ -78,9 +77,9 @@ static Key keys[] = {
     { ControlMask,                  XF86XK_RotateWindows,       spawn,          {.v = notecmd } },
     { 0,                            XF86XK_RotateWindows,       spawn,          {.v = rotatecmd } },
     { 0,                            XF86XK_ScrollUp,            spawn,          {.v = upscrollcmd } },
-    { ControlMask,                  XF86XK_ScrollUp,            spawn,          {.v = webcmd } },
+    { ControlMask,                  XF86XK_ScrollUp,            focusstack,     {.i = +1 } },
     { 0,                            XF86XK_ScrollDown,          spawn,          {.v = dnscrollcmd } },
-    { ControlMask,                  XF86XK_ScrollDown,          spawn,          {.v = termcmd } },
+    { ControlMask,                  XF86XK_ScrollDown,          focusstack,     {.i = -1 } },
     { 0,                            XK_Print,                   spawn,          {.v = printcmd } },
     { 0,                            XF86XK_AudioRaiseVolume,    spawn,          {.v = raisevolcmd } },
     { 0,                            XF86XK_AudioLowerVolume,    spawn,          {.v = lowervolcmd } },
