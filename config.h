@@ -15,18 +15,18 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "TERM", "IMG", "VID", "WEB", "XDOC", "TMP" };    
+static const char *tags[] = { "1", "2", "3", "4", "5", "6" };    
 
 static const Rule rules[] = {
     /* class        instance    title       tags mask     isfloating   monitor */
     { "Cellwriter", NULL,       NULL,       ~0,           True,        -1 },
-    { "Florence", 	NULL,       NULL,       ~0,           True,        -1 },
+    { "Ardesia", 	NULL,       NULL,       ~0,           True,        -1 },
     { "URxvt",      NULL,       NULL,       1 << 0,       False,       -1 },
     { "sxiv",       NULL,       NULL,       1 << 1,       False,       -1 },
     { "Xsvg",       NULL,       NULL,       1 << 1,       False,       -1 },
     { "MPlayer",    NULL,       NULL,       1 << 2,       True,        -1 },
     { "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
-    { "Chromium",   NULL,       NULL,       1 << 3,       False,       -1 },
+    { "Midori",     NULL,       NULL,       1 << 3,       False,       -1 },
     { "Lss",        NULL,       NULL,       1 << 4,       False,       -1 },
     { "MuPDF",      NULL,       NULL,       1 << 4,       False,       -1 },
     { "Xournal",    NULL,       NULL,       1 << 4,       False,       -1 },
@@ -126,7 +126,8 @@ static Button buttons[] = {
     { ClkWinTitle,          0,              Button1,        focusonclick,   {0} },
     { ClkWinTitle,          MODKEY,         Button1,        pushup,         {0} }, 
     { ClkWinTitle,          MODKEY,         Button3,        pushdown,       {0} }, 
-    { ClkWinTitle,          0,              Button3,        zoom,           {0} }, 
+    { ClkWinTitle,          0,              Button2,        zoom,           {0} }, 
+	{ ClkWinTitle,          0,              Button3,        startgesture,   {0} },
     { ClkStatusText,        0,              Button1,        spawn,          {.v = calcmd } },
 /*  { ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} }, */
     { ClkClientWin,         MODKEY,         Button1,        tilemovemouse,  {0} },
@@ -136,4 +137,8 @@ static Button buttons[] = {
     { ClkTagBar,            0,              Button3,        toggleview,     {0} },
     { ClkTagBar,            MODKEY,         Button1,        tag,            {0} },
     { ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+};
+
+static Gesture gestures[] = {
+    {"d", spawn, SHCMD("easystroke send disable") },
 };

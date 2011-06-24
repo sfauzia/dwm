@@ -24,8 +24,8 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  
  # flags
  CPPFLAGS = -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
---- a/dwm.c	2010-06-04 06:39:15.000000000 -0400
-+++ b/dwm.c	2011-06-11 08:51:44.786241322 -0400
+--- a/dwm.c	2011-06-24 09:09:48.028546414 -0400
++++ b/dwm.c	2011-06-24 09:09:06.278548527 -0400
 @@ -36,6 +36,10 @@
  #include <X11/Xlib.h>
  #include <X11/Xproto.h>
@@ -60,7 +60,20 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
         ClkClientWin, ClkRootWin, ClkLast };             /* clicks */
  
-@@ -88,7 +96,7 @@
+@@ -71,6 +79,12 @@
+ } Arg;
+ 
+ typedef struct {
++	char *name;
++	void (*func)(const Arg *arg);
++	const Arg arg;
++} Gesture;
++
++typedef struct {
+ 	unsigned int click;
+ 	unsigned int mask;
+ 	unsigned int button;
+@@ -88,7 +102,7 @@
  	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
  	int bw, oldbw;
  	unsigned int tags;
@@ -69,7 +82,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	Client *next;
  	Client *snext;
  	Monitor *mon;
-@@ -101,12 +109,19 @@
+@@ -101,12 +115,19 @@
  	unsigned long sel[ColLast];
  	Drawable drawable;
  	GC gc;
@@ -91,7 +104,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	} font;
  } DC; /* draw context */
  
-@@ -122,26 +137,6 @@
+@@ -122,26 +143,6 @@
  	void (*arrange)(Monitor *);
  } Layout;
  
@@ -118,7 +131,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  typedef struct {
  	const char *class;
  	const char *instance;
-@@ -157,7 +152,10 @@
+@@ -157,7 +158,10 @@
  static void arrange(Monitor *m);
  static void arrangemon(Monitor *m);
  static void attach(Client *c);
@@ -129,7 +142,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  static void buttonpress(XEvent *e);
  static void checkotherwm(void);
  static void cleanup(void);
-@@ -175,22 +173,26 @@
+@@ -175,22 +179,26 @@
  static Monitor *dirtomon(int dir);
  static void drawbar(Monitor *m);
  static void drawbars(void);
@@ -158,7 +171,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  static void keypress(XEvent *e);
  static void killclient(const Arg *arg);
  static void manage(Window w, XWindowAttributes *wa);
-@@ -200,7 +202,10 @@
+@@ -200,7 +208,10 @@
  static void movemouse(const Arg *arg);
  static Client *nexttiled(Client *c);
  static Monitor *ptrtomon(int x, int y);
@@ -169,7 +182,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  static void quit(const Arg *arg);
  static void resize(Client *c, int x, int y, int w, int h, Bool interact);
  static void resizeclient(Client *c, int x, int y, int w, int h);
-@@ -208,8 +213,10 @@
+@@ -208,8 +219,10 @@
  static void restack(Monitor *m);
  static void run(void);
  static void scan(void);
@@ -180,7 +193,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  static void setlayout(const Arg *arg);
  static void setmfact(const Arg *arg);
  static void setup(void);
-@@ -220,6 +227,7 @@
+@@ -220,6 +233,7 @@
  static void tagmon(const Arg *arg);
  static int textnw(const char *text, unsigned int len);
  static void tile(Monitor *);
@@ -188,7 +201,15 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  static void togglebar(const Arg *arg);
  static void togglefloating(const Arg *arg);
  static void toggletag(const Arg *arg);
-@@ -274,10 +282,38 @@
+@@ -242,6 +256,7 @@
+ static int xerrordummy(Display *dpy, XErrorEvent *ee);
+ static int xerrorstart(Display *dpy, XErrorEvent *ee);
+ static void zoom(const Arg *arg);
++static void startgesture(const Arg *arg);
+ 
+ /* variables */
+ static const char broken[] = "broken";
+@@ -274,10 +289,38 @@
  static DC dc;
  static Monitor *mons = NULL, *selmon = NULL;
  static Window root;
@@ -227,7 +248,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  /* compile-time check if all tags fit into an unsigned int bit array. */
  struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
  
-@@ -412,6 +448,17 @@
+@@ -412,6 +455,17 @@
  }
  
  void
@@ -245,7 +266,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  attachstack(Client *c) {
  	c->snext = c->mon->stack;
  	c->mon->stack = c;
-@@ -443,10 +490,12 @@
+@@ -443,10 +497,12 @@
  		}
  		else if(ev->x < x + blw)
  			click = ClkLtSymbol;
@@ -260,7 +281,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	}
  	else if((c = wintoclient(ev->window))) {
  		focus(c);
-@@ -455,7 +504,7 @@
+@@ -455,7 +511,7 @@
  	for(i = 0; i < LENGTH(buttons); i++)
  		if(click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
  		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
@@ -269,7 +290,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  }
  
  void
-@@ -482,10 +531,6 @@
+@@ -482,10 +538,6 @@
  	for(m = mons; m; m = m->next)
  		while(m->stack)
  			unmanage(m->stack, False);
@@ -280,7 +301,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	XUngrabKey(dpy, AnyKey, AnyModifier, root);
  	XFreePixmap(dpy, dc.drawable);
  	XFreeGC(dpy, dc.gc);
-@@ -555,6 +600,7 @@
+@@ -555,6 +607,7 @@
  			if(dc.drawable != 0)
  				XFreePixmap(dpy, dc.drawable);
  			dc.drawable = XCreatePixmap(dpy, root, sw, bh, DefaultDepth(dpy, screen));
@@ -288,7 +309,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  			updatebars();
  			for(m = mons; m; m = m->next)
  				XMoveResizeWindow(dpy, m->barwin, m->wx, m->by, m->ww, bh);
-@@ -611,6 +657,7 @@
+@@ -611,6 +664,7 @@
  Monitor *
  createmon(void) {
  	Monitor *m;
@@ -296,7 +317,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  
  	if(!(m = (Monitor *)calloc(1, sizeof(Monitor))))
  		die("fatal: could not malloc() %u bytes\n", sizeof(Monitor));
-@@ -621,6 +668,15 @@
+@@ -621,6 +675,15 @@
  	m->lt[0] = &layouts[0];
  	m->lt[1] = &layouts[1 % LENGTH(layouts)];
  	strncpy(m->ltsymbol, layouts[0].symbol, sizeof m->ltsymbol);
@@ -312,7 +333,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	return m;
  }
  
-@@ -683,12 +739,15 @@
+@@ -683,12 +746,15 @@
  
  void
  drawbar(Monitor *m) {
@@ -331,7 +352,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  		occ |= c->tags;
  		if(c->isurgent)
  			urg |= c->tags;
-@@ -714,19 +773,68 @@
+@@ -714,19 +780,68 @@
  			dc.w = m->ww - x;
  		}
  		drawtext(stext, dc.norm, False);
@@ -397,18 +418,18 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  			drawtext(NULL, dc.norm, False);
 +			break;
 +		}
- 	}
++	}
 +
 +	if(m == selmon && m->sel && ISVISIBLE(m->sel)) {
 +		dc = seldc;
 +		drawtext(m->sel->name, col, False);
 +		drawsquare(m->sel->isfixed, m->sel->isfloating, True, col);
-+	}
+ 	}
 +
  	XCopyArea(dpy, dc.drawable, m->barwin, dc.gc, 0, 0, m->ww, bh, 0, 0);
  	XSync(dpy, False);
  }
-@@ -740,6 +848,15 @@
+@@ -740,6 +855,15 @@
  }
  
  void
@@ -424,7 +445,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  drawsquare(Bool filled, Bool empty, Bool invert, unsigned long col[ColLast]) {
  	int x;
  	XGCValues gcv;
-@@ -772,7 +889,7 @@
+@@ -772,7 +896,7 @@
  		return;
  	olen = strlen(text);
  	h = dc.font.ascent + dc.font.descent;
@@ -433,7 +454,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	x = dc.x + (h / 2);
  	/* shorten text if necessary */
  	for(len = MIN(olen, sizeof buf); len && textnw(text, len) > dc.w - h; len--);
-@@ -781,11 +898,8 @@
+@@ -781,11 +905,8 @@
  	memcpy(buf, text, len);
  	if(len < olen)
  		for(i = len; i && i > len - 3; buf[--i] = '.');
@@ -447,7 +468,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  }
  
  void
-@@ -831,7 +945,7 @@
+@@ -831,7 +952,7 @@
  		attachstack(c);
  		grabbuttons(c, True);
  		XSetWindowBorder(dpy, c->win, dc.sel[ColBorder]);
@@ -456,7 +477,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	}
  	else
  		XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
-@@ -840,11 +954,60 @@
+@@ -840,11 +961,60 @@
  }
  
  void
@@ -518,7 +539,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  }
  
  void
-@@ -887,13 +1050,13 @@
+@@ -887,13 +1057,13 @@
  }
  
  unsigned long
@@ -536,7 +557,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  }
  
  Bool
-@@ -989,53 +1152,20 @@
+@@ -989,53 +1159,20 @@
  
  void
  initfont(const char *fontstr) {
@@ -601,7 +622,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  }
  
  #ifdef XINERAMA
-@@ -1052,6 +1182,24 @@
+@@ -1052,6 +1189,24 @@
  #endif /* XINERAMA */
  
  void
@@ -626,7 +647,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  keypress(XEvent *e) {
  	unsigned int i;
  	KeySym keysym;
-@@ -1068,20 +1216,9 @@
+@@ -1068,20 +1223,9 @@
  
  void
  killclient(const Arg *arg) {
@@ -648,7 +669,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  		XGrabServer(dpy);
  		XSetErrorHandler(xerrordummy);
  		XSetCloseDownMode(dpy, DestroyAll);
-@@ -1142,13 +1279,14 @@
+@@ -1142,13 +1286,14 @@
  	XSetWindowBorder(dpy, w, dc.norm[ColBorder]);
  	configure(c); /* propagates border_width, if size doesn't change */
  	updatesizehints(c);
@@ -664,7 +685,77 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	attachstack(c);
  	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
  	XMapWindow(dpy, c->win);
-@@ -1263,6 +1401,16 @@
+@@ -1247,6 +1392,69 @@
+ 	}
+ }
+ 
++void
++startgesture(const Arg *arg) {
++	int x, y, dx, dy, q;
++	int valid=0, listpos=0, gestpos=0, count=0;
++	char move, currGest[10];
++	XEvent ev;
++	
++	if(XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
++		None, cursor[CurMove], CurrentTime) != GrabSuccess)
++		return;
++	if(!getrootptr(&x, &y))
++		return;
++	do {
++		XMaskEvent(dpy, MOUSEMASK|ExposureMask|SubstructureRedirectMask, &ev);
++		switch (ev.type) {
++			case ConfigureRequest:
++			case Expose:
++			case MapRequest:
++				handler[ev.type](&ev);
++				break;
++			case MotionNotify:
++				if(count++ < 10)
++					break;
++				count = 0;
++				dx = ev.xmotion.x - x;
++				dy = ev.xmotion.y - y;
++				x = ev.xmotion.x;
++				y = ev.xmotion.y;
++				
++				if( abs(dx)/(abs(dy)+1) == 0 )
++					move = dy<0?'u':'d';
++				else
++					move = dx<0?'l':'r';
++				
++				if(move!=currGest[gestpos-1])
++				{	
++					if(gestpos>9)
++					{	ev.type++;
++						break;
++					}
++					
++					currGest[gestpos] = move;
++					currGest[++gestpos] = '\0';
++					
++					valid = 0;
++					for(q = 0; q<LENGTH(gestures); q++)
++					{	if(!strcmp(currGest, gestures[q].name))
++						{	valid++;
++							listpos = q;	
++						}
++					}
++				}
++				
++		}
++	} while(ev.type != ButtonRelease);
++	
++	if(valid)
++		gestures[listpos].func(&(gestures[listpos].arg));
++	
++	XUngrabPointer(dpy, CurrentTime);
++}
++
++
+ Client *
+ nexttiled(Client *c) {
+ 	for(; c && (c->isfloating || !ISVISIBLE(c)); c = c->next);
+@@ -1263,6 +1471,16 @@
  	return selmon;
  }
  
@@ -681,18 +772,18 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  void
  propertynotify(XEvent *e) {
  	Client *c;
-@@ -1291,10 +1439,58 @@
+@@ -1291,13 +1509,61 @@
  		}
  		if(ev->atom == XA_WM_NAME || ev->atom == netatom[NetWMName]) {
  			updatetitle(c);
 -			if(c == c->mon->sel)
 -				drawbar(c->mon);
 +			drawbar(c->mon);
-+		}
-+	}
-+}
-+
-+void
+ 		}
+ 	}
+ }
+ 
+ void
 +pushdown(const Arg *arg) {
 +	Client *sel = selmon->sel;
 +	Client *c;
@@ -729,20 +820,23 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
 +		else {
 +			for(c = selmon->clients; c->next != sel->next; c = c->next);
 +			c->next = sel;
- 		}
++		}
 +	} else {
 +		/* move to the end */
 +		for(c = sel; c->next; c = c->next);
 +		detach(sel);
 +		sel->next = NULL;
 +		c->next = sel;
- 	}
++	}
 +	focus(sel);
 +	arrange(selmon);
- }
- 
- void
-@@ -1345,10 +1541,16 @@
++}
++
++void
+ clientmessage(XEvent *e) {
+ 	XClientMessageEvent *cme = &e->xclient;
+ 	Client *c;
+@@ -1345,10 +1611,16 @@
  resizeclient(Client *c, int x, int y, int w, int h) {
  	XWindowChanges wc;
  
@@ -763,7 +857,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	wc.border_width = c->bw;
  	XConfigureWindow(dpy, c->win, CWX|CWY|CWWidth|CWHeight|CWBorderWidth, &wc);
  	configure(c);
-@@ -1489,12 +1691,43 @@
+@@ -1489,12 +1761,43 @@
  			PropModeReplace, (unsigned char *)data, 2);
  }
  
@@ -808,7 +902,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	strncpy(selmon->ltsymbol, selmon->lt[selmon->sellt]->symbol, sizeof selmon->ltsymbol);
  	if(selmon->sel)
  		arrange(selmon);
-@@ -1512,7 +1745,7 @@
+@@ -1512,7 +1815,7 @@
  	f = arg->f < 1.0 ? arg->f + selmon->mfact : arg->f - 1.0;
  	if(f < 0.1 || f > 0.9)
  		return;
@@ -817,7 +911,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	arrange(selmon);
  }
  
-@@ -1535,6 +1768,7 @@
+@@ -1535,6 +1838,7 @@
  	wmatom[WMProtocols] = XInternAtom(dpy, "WM_PROTOCOLS", False);
  	wmatom[WMDelete] = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
  	wmatom[WMState] = XInternAtom(dpy, "WM_STATE", False);
@@ -825,7 +919,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	netatom[NetSupported] = XInternAtom(dpy, "_NET_SUPPORTED", False);
  	netatom[NetWMName] = XInternAtom(dpy, "_NET_WM_NAME", False);
  	netatom[NetWMState] = XInternAtom(dpy, "_NET_WM_STATE", False);
-@@ -1543,19 +1777,24 @@
+@@ -1543,19 +1847,24 @@
  	cursor[CurNormal] = XCreateFontCursor(dpy, XC_left_ptr);
  	cursor[CurResize] = XCreateFontCursor(dpy, XC_sizing);
  	cursor[CurMove] = XCreateFontCursor(dpy, XC_fleur);
@@ -859,7 +953,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	updatebars();
  	updatestatus();
  	/* EWMH support per view */
-@@ -1625,13 +1864,10 @@
+@@ -1625,13 +1934,10 @@
  
  int
  textnw(const char *text, unsigned int len) {
@@ -877,7 +971,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  }
  
  void
-@@ -1665,8 +1901,114 @@
+@@ -1665,8 +1971,114 @@
  }
  
  void
@@ -993,7 +1087,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  	updatebarpos(selmon);
  	XMoveResizeWindow(dpy, selmon->barwin, selmon->wx, selmon->by, selmon->ww, bh);
  	arrange(selmon);
-@@ -1686,12 +2028,27 @@
+@@ -1686,12 +2098,27 @@
  void
  toggletag(const Arg *arg) {
  	unsigned int newtags;
@@ -1021,7 +1115,7 @@ diff -aur dwm-5.7.2.orig/config.mk dwm-5.7.2.patched/config.mk
  		arrange(selmon);
  	}
  }
-@@ -1953,17 +2310,37 @@
+@@ -1953,17 +2380,37 @@
  		}
  		else
  			c->isurgent = (wmh->flags & XUrgencyHint) ? True : False;

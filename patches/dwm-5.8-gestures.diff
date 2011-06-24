@@ -1,0 +1,119 @@
+--- a/config.def.h	2010-06-04 06:39:15.000000000 -0400
++++ b/config.def.h	2011-06-24 09:16:05.428527305 -0400
+@@ -90,6 +90,7 @@
+ 	{ ClkLtSymbol,          0,              Button1,        setlayout,      {0} },
+ 	{ ClkLtSymbol,          0,              Button3,        setlayout,      {.v = &layouts[2]} },
+ 	{ ClkWinTitle,          0,              Button2,        zoom,           {0} },
++	{ ClkWinTitle,          0,              Button3,        startgesture,   {0} },
+ 	{ ClkStatusText,        0,              Button2,        spawn,          {.v = termcmd } },
+ 	{ ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} },
+ 	{ ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
+@@ -100,3 +101,15 @@
+ 	{ ClkTagBar,            MODKEY,         Button3,        toggletag,      {0} },
+ };
+ 
++//may want to reuse the architecture present in buttons[] and keys[]
++static Gesture gestures[] = {
++	{"dl", spawn, SHCMD("konqueror") },
++	{"dr", spawn, SHCMD("pidgin" ) },
++	{"l",  spawn, SHCMD("xterm") },
++	{"ld", spawn, SHCMD("gimp" ) },
++	{"lr", spawn, SHCMD("google-chrome") },
++	{"r" , spawn, SHCMD("firefox") },
++	{"rl", spawn, SHCMD("pavucontrol") },
++	{"du", spawn, SHCMD("kate") },
++};
++
+--- a/dwm.c	2011-06-24 09:05:06.462485962 -0400
++++ b/dwm.c	2011-06-24 09:00:21.702102500 -0400
+@@ -71,6 +71,12 @@
+ } Arg;
+ 
+ typedef struct {
++	char *name;
++	void (*func)(const Arg *arg);
++	const Arg arg;
++} Gesture;
++
++typedef struct {
+ 	unsigned int click;
+ 	unsigned int mask;
+ 	unsigned int button;
+@@ -242,6 +248,7 @@
+ static int xerrordummy(Display *dpy, XErrorEvent *ee);
+ static int xerrorstart(Display *dpy, XErrorEvent *ee);
+ static void zoom(const Arg *arg);
++static void startgesture(const Arg *arg);
+ 
+ /* variables */
+ static const char broken[] = "broken";
+@@ -1247,6 +1254,69 @@
+ 	}
+ }
+ 
++void
++startgesture(const Arg *arg) {
++	int x, y, dx, dy, q;
++	int valid=0, listpos=0, gestpos=0, count=0;
++	char move, currGest[10];
++	XEvent ev;
++	
++	if(XGrabPointer(dpy, root, False, MOUSEMASK, GrabModeAsync, GrabModeAsync,
++		None, cursor[CurMove], CurrentTime) != GrabSuccess)
++		return;
++	if(!getrootptr(&x, &y))
++		return;
++	do {
++		XMaskEvent(dpy, MOUSEMASK|ExposureMask|SubstructureRedirectMask, &ev);
++		switch (ev.type) {
++			case ConfigureRequest:
++			case Expose:
++			case MapRequest:
++				handler[ev.type](&ev);
++				break;
++			case MotionNotify:
++				if(count++ < 10)
++					break;
++				count = 0;
++				dx = ev.xmotion.x - x;
++				dy = ev.xmotion.y - y;
++				x = ev.xmotion.x;
++				y = ev.xmotion.y;
++				
++				if( abs(dx)/(abs(dy)+1) == 0 )
++					move = dy<0?'u':'d';
++				else
++					move = dx<0?'l':'r';
++				
++				if(move!=currGest[gestpos-1])
++				{	
++					if(gestpos>9)
++					{	ev.type++;
++						break;
++					}
++					
++					currGest[gestpos] = move;
++					currGest[++gestpos] = '\0';
++					
++					valid = 0;
++					for(q = 0; q<LENGTH(gestures); q++)
++					{	if(!strcmp(currGest, gestures[q].name))
++						{	valid++;
++							listpos = q;	
++						}
++					}
++				}
++				
++		}
++	} while(ev.type != ButtonRelease);
++	
++	if(valid)
++		gestures[listpos].func(&(gestures[listpos].arg));
++	
++	XUngrabPointer(dpy, CurrentTime);
++}
++
++
+ Client *
+ nexttiled(Client *c) {
+ 	for(; c && (c->isfloating || !ISVISIBLE(c)); c = c->next);
