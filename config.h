@@ -15,7 +15,8 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "surf", "1", "2", "3", "4", "5", "6", "7", "8" };    
+static const char *tags[]     = { "surf", "1", "2", "3", "4", "5", "6", "7", "8" };    
+static const int taglayouts[] = {1, 0, 0, 0, 0, 0, 0, 0, 0};
 
 static const Rule rules[] = {
     /* class        instance    title       tags mask     flags        monitor */
@@ -30,8 +31,8 @@ static const Bool resizehints = False; /* True means respect size hints in tiled
 
 static const Layout layouts[] = {
     /* symbol       arrange function */
-    { "[M]",        monocle }, /* first entry is default */
-    { "[]=",        tile },    
+    { "[]=",        tile },    /* first entry is default */
+    { "[M]",        monocle }, 
     { "><>",        NULL },    /* no layout function means floating behavior */
     { "TTT",        bstack },
     { "===",        bstackhoriz }, 
@@ -89,8 +90,8 @@ static Key keys[] = {
     { MODKEY,                       XK_Return,                  zoom,           {0} },
     { MODKEY,                       XK_Tab,                     view,           {0} },
     { MODKEY|ShiftMask,             XK_c,                       killclient,     {0} },
-    { MODKEY,                       XK_f,                       setlayout,      {.v = &layouts[0]} },
-    { MODKEY,                       XK_t,                       setlayout,      {.v = &layouts[1]} },
+    { MODKEY,                       XK_t,                       setlayout,      {.v = &layouts[0]} },
+    { MODKEY,                       XK_f,                       setlayout,      {.v = &layouts[1]} },
     { MODKEY,                       XK_u,                       setlayout,      {.v = &layouts[2]} },
     { MODKEY,                       XK_s,                       setlayout,      {.v = &layouts[3]} },
     { MODKEY,                       XK_r,                       setlayout,      {.v = &layouts[4]} },
