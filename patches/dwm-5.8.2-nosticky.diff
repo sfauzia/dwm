@@ -1,0 +1,115 @@
+--- a/config.def.h 2010-06-04 06:39:15.000000000 -0400
++++ b/config.def.h 2011-08-18 11:02:24.919696686 -0400
+@@ -17,9 +17,9 @@
+ static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+ 
+ static const Rule rules[] = {
+-	/* class      instance    title       tags mask     isfloating   monitor */
+-	{ "Gimp",     NULL,       NULL,       0,            True,        -1 },
+-	{ "Firefox",  NULL,       NULL,       1 << 8,       False,       -1 },
++	/* class      instance    title       tags mask     flags        monitor */
++	{ "Gimp",     NULL,       NULL,       0,            Floating,    -1 },
++	{ "Firefox",  NULL,       NULL,       1 << 8,       Normal,      -1 },
+ };
+ 
+ /* layout(s) */
+--- a/dwm.c	2010-06-04 06:39:15.000000000 -0400
++++ b/dwm.c	2011-08-18 10:54:30.903031123 -0400
+@@ -62,6 +62,8 @@
+ enum { WMProtocols, WMDelete, WMState, WMLast };        /* default atoms */
+ enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
+        ClkClientWin, ClkRootWin, ClkLast };             /* clicks */
++enum { Normal, Floating, NoFocus=2 };                   /* Client flags for
++Rules */
+ 
+ typedef union {
+ 	int i;
+@@ -88,7 +90,7 @@
+ 	int basew, baseh, incw, inch, maxw, maxh, minw, minh;
+ 	int bw, oldbw;
+ 	unsigned int tags;
+-	Bool isfixed, isfloating, isurgent, oldstate;
++    Bool isfixed, isfloating, isurgent, oldstate, nofocus;
+ 	Client *next;
+ 	Client *snext;
+ 	Monitor *mon;
+@@ -147,7 +149,7 @@
+ 	const char *instance;
+ 	const char *title;
+ 	unsigned int tags;
+-	Bool isfloating;
++    unsigned int flags;
+ 	int monitor;
+ } Rule;
+ 
+@@ -301,7 +303,8 @@
+ 			&& (!r->class || strstr(class, r->class))
+ 			&& (!r->instance || strstr(instance, r->instance)))
+ 			{
+-				c->isfloating = r->isfloating;
++                c->isfloating = (r->flags&Floating)!=0;
++                c->nofocus = (r->flags&NoFocus)!=0;
+ 				c->tags |= r->tags;
+ 				for(m = mons; m && m->num != r->monitor; m = m->next);
+ 				if(m)
+@@ -689,7 +692,8 @@
+ 	Client *c;
+ 
+ 	for(c = m->clients; c; c = c->next) {
+-		occ |= c->tags;
++        if(c->tags!=TAGMASK)
++            occ |= c->tags;
+ 		if(c->isurgent)
+ 			urg |= c->tags;
+ 	}
+@@ -698,8 +702,8 @@
+ 		dc.w = TEXTW(tags[i]);
+ 		col = m->tagset[m->seltags] & 1 << i ? dc.sel : dc.norm;
+ 		drawtext(tags[i], col, urg & 1 << i);
+-		drawsquare(m == selmon && selmon->sel && selmon->sel->tags & 1 << i,
+-		           occ & 1 << i, urg & 1 << i, col);
++        drawsquare(m == selmon && selmon->sel && m->tagset[m->seltags] & selmon->sel->tags & 1 << i,
++                   occ & 1 << i, urg & 1 << i, col);
+ 		dc.x += dc.w;
+ 	}
+ 	dc.w = blw = TEXTW(m->ltsymbol);
+@@ -817,6 +821,7 @@
+ 
+ void
+ focus(Client *c) {
++    Client *inc=c;
+ 	if(!c || !ISVISIBLE(c))
+ 		for(c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
+ 	/* was if(selmon->sel) */
+@@ -829,6 +834,9 @@
+ 			clearurgent(c);
+ 		detachstack(c);
+ 		attachstack(c);
++    }
++    while( !inc && c && c->nofocus ) c=c->next;
++    if(c) {
+ 		grabbuttons(c, True);
+ 		XSetWindowBorder(dpy, c->win, dc.sel[ColBorder]);
+ 		XSetInputFocus(dpy, c->win, RevertToPointerRoot, CurrentTime);
+@@ -867,17 +875,17 @@
+ 	if(!selmon->sel)
+ 		return;
+ 	if(arg->i > 0) {
+-		for(c = selmon->sel->next; c && !ISVISIBLE(c); c = c->next);
++        for(c = selmon->sel->next; c && !ISVISIBLE(c) && c->nofocus; c = c->next);
+ 		if(!c)
+-			for(c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
++            for(c = selmon->clients; c && !ISVISIBLE(c) && c->nofocus; c = c->next);
+ 	}
+ 	else {
+ 		for(i = selmon->clients; i != selmon->sel; i = i->next)
+-			if(ISVISIBLE(i))
++            if(ISVISIBLE(i) && i->nofocus)
+ 				c = i;
+ 		if(!c)
+ 			for(; i; i = i->next)
+-				if(ISVISIBLE(i))
++                if(ISVISIBLE(i) && i->nofocus)
+ 					c = i;
+ 	}
+ 	if(c) {

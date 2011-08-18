@@ -15,21 +15,13 @@ static Bool showbar                 = True;     /* False means no bar */
 static Bool topbar                  = True;     /* False means bottom bar */
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6" };    
+static const char *tags[] = { "surf", "1", "2", "3", "4", "5", "6", "7", "8" };    
 
 static const Rule rules[] = {
-    /* class        instance    title       tags mask     isfloating   monitor */
-    { "Cellwriter", NULL,       NULL,       ~0,           True,        -1 },
-    { "Ardesia", 	NULL,       NULL,       ~0,           True,        -1 },
-    { "URxvt",      NULL,       NULL,       1 << 0,       False,       -1 },
-    { "sxiv",       NULL,       NULL,       1 << 1,       False,       -1 },
-    { "Xsvg",       NULL,       NULL,       1 << 1,       False,       -1 },
-    { "MPlayer",    NULL,       NULL,       1 << 2,       True,        -1 },
-    { "surf",       NULL,       NULL,       1 << 3,       False,       -1 },
-    { "Midori",     NULL,       NULL,       1 << 3,       False,       -1 },
-    { "Lss",        NULL,       NULL,       1 << 4,       False,       -1 },
-    { "MuPDF",      NULL,       NULL,       1 << 4,       False,       -1 },
-    { "Xournal",    NULL,       NULL,       1 << 4,       False,       -1 },
+    /* class        instance    title       tags mask     flags        monitor */
+    { "Cellwriter", NULL,       NULL,       ~0,           Floating,    -1 },
+    { "Pystopwatch",NULL,       NULL,       ~0,           Floating,    -1 },
+    { "surf",       NULL,       NULL,       1 << 0,       Normal,      -1 },
 };
 
 /* layout(s) */
@@ -38,9 +30,9 @@ static const Bool resizehints = False; /* True means respect size hints in tiled
 
 static const Layout layouts[] = {
     /* symbol       arrange function */
-    { "[]=",        tile },    /* first entry is default */
+    { "[M]",        monocle }, /* first entry is default */
+    { "[]=",        tile },    
     { "><>",        NULL },    /* no layout function means floating behavior */
-    { "[M]",        monocle },
     { "TTT",        bstack },
     { "===",        bstackhoriz }, 
 };
@@ -57,33 +49,35 @@ static const Layout layouts[] = {
 #define SHCMD(cmd) { .v = (const char*[]){ "/bin/sh", "-c", cmd, NULL } }
 
 /* commands */
-static const char *calcmd[]      = { "urxvtc", "-hold", "-title", "remind", "-e", "bash", "-c", "rem -n | sort", NULL };
-static const char *dmenucmd[]    = { "dmenu_run", "-fn", "kroeger 05_55 caps-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
-static const char *dnscrollcmd[] = { "xte", "mouseclick 5", NULL };
-static const char *lowervolcmd[] = { "amixer", "-q", "sset", "Master", "5-", NULL };
-static const char *mutevolcmd[]  = { "amixer", "-q", "sset", "Master", "toggle", NULL };
-static const char *notecmd[]     = { "xournal", NULL };
-static const char *printcmd[]    = { "scrot", NULL };
-static const char *raisevolcmd[] = { "amixer", "-q", "sset", "Master", "5+", NULL };
-static const char *rotatecmd[]   = { "rotate", NULL };
-static const char *termcmd[]     = { "urxvtc", NULL };
-static const char *upscrollcmd[] = { "xte", "mouseclick 4", NULL };
+static const char *audiolowercmd[]  = { "amixer", "-q", "sset", "Master", "5-", NULL };
+static const char *audiomutecmd[]   = { "amixer", "-q", "sset", "Master", "toggle", NULL };
+static const char *audioraisecmd[]  = { "amixer", "-q", "sset", "Master", "5+", NULL };
+static const char *dmenucmd[]       = { "dmenu_run", "-fn", "kroeger 05_55 caps-6", "-nb", normbgcolor, "-nf", normfgcolor, "-sb", selbgcolor, "-sf", selfgcolor, NULL };
+static const char *remindcmd[]      = { "urxvtc", "-hold", "-title", "remind", "-e", "bash", "-c", "rem -n | sort", NULL };
+static const char *rotatecmd[]      = { "rotate.sh", NULL };
+static const char *scrolldowncmd[]  = { "xte", "mouseclick 5", NULL };
+static const char *scrollupcmd[]    = { "xte", "mouseclick 4", NULL };
+static const char *scrotcmd[]       = { "scrot", NULL };
+static const char *surfcmd[]        = { "sr", "-g", "google", NULL };
+static const char *termcmd[]        = { "urxvtc", NULL };
+static const char *xournalcmd[]     = { "xournal", NULL };
+
 
 #include <X11/XF86keysym.h>
 static Key keys[] = {
     /* modifier                     key                         function        argument */
+    { 0,                            XK_Print,                   spawn,          {.v = scrotcmd } },
+    { 0,                            XF86XK_AudioLowerVolume,    spawn,          {.v = audiolowercmd } },
+    { 0,                            XF86XK_AudioMute,           spawn,          {.v = audiomutecmd } },
+    { 0,                            XF86XK_AudioRaiseVolume,    spawn,          {.v = audioraisecmd } },
+    { ControlMask,                  XF86XK_RotateWindows,       spawn,          {.v = xournalcmd } },
+    { 0,                            XF86XK_RotateWindows,       spawn,          {.v = rotatecmd } },
+    { 0,                            XF86XK_ScrollUp,            spawn,          {.v = scrollupcmd } },
+    { ControlMask,                  XF86XK_ScrollUp,            spawn,          {.v = surfcmd } },
+    { 0,                            XF86XK_ScrollDown,          spawn,          {.v = scrolldowncmd } },
+    { ControlMask,                  XF86XK_ScrollDown,          spawn,          {.v = termcmd } },
     { MODKEY,                       XK_p,                       spawn,          {.v = dmenucmd } },
     { MODKEY|ShiftMask,             XK_Return,                  spawn,          {.v = termcmd } },
-    { ControlMask,                  XF86XK_RotateWindows,       spawn,          {.v = notecmd } },
-    { 0,                            XF86XK_RotateWindows,       spawn,          {.v = rotatecmd } },
-    { 0,                            XF86XK_ScrollUp,            spawn,          {.v = upscrollcmd } },
-    { ControlMask,                  XF86XK_ScrollUp,            focusstack,     {.i = +1 } },
-    { 0,                            XF86XK_ScrollDown,          spawn,          {.v = dnscrollcmd } },
-    { ControlMask,                  XF86XK_ScrollDown,          focusstack,     {.i = -1 } },
-    { 0,                            XK_Print,                   spawn,          {.v = printcmd } },
-    { 0,                            XF86XK_AudioRaiseVolume,    spawn,          {.v = raisevolcmd } },
-    { 0,                            XF86XK_AudioLowerVolume,    spawn,          {.v = lowervolcmd } },
-    { 0,                            XF86XK_AudioMute,           spawn,          {.v = mutevolcmd } },
     { MODKEY,                       XK_b,                       togglebar,      {0} },
     { MODKEY,                       XK_j,                       focusstack,     {.i = +1 } },
     { MODKEY,                       XK_k,                       focusstack,     {.i = -1 } },
@@ -95,9 +89,9 @@ static Key keys[] = {
     { MODKEY,                       XK_Return,                  zoom,           {0} },
     { MODKEY,                       XK_Tab,                     view,           {0} },
     { MODKEY|ShiftMask,             XK_c,                       killclient,     {0} },
-    { MODKEY,                       XK_t,                       setlayout,      {.v = &layouts[0]} },
-    { MODKEY,                       XK_u,                       setlayout,      {.v = &layouts[1]} },
-    { MODKEY,                       XK_f,                       setlayout,      {.v = &layouts[2]} },
+    { MODKEY,                       XK_f,                       setlayout,      {.v = &layouts[0]} },
+    { MODKEY,                       XK_t,                       setlayout,      {.v = &layouts[1]} },
+    { MODKEY,                       XK_u,                       setlayout,      {.v = &layouts[2]} },
     { MODKEY,                       XK_s,                       setlayout,      {.v = &layouts[3]} },
     { MODKEY,                       XK_r,                       setlayout,      {.v = &layouts[4]} },
     { MODKEY,                       XK_space,                   setlayout,      {0} },
@@ -108,12 +102,15 @@ static Key keys[] = {
     { MODKEY,                       XK_period,                  focusmon,       {.i = +1 } },
     { MODKEY|ShiftMask,             XK_comma,                   tagmon,         {.i = -1 } },
     { MODKEY|ShiftMask,             XK_period,                  tagmon,         {.i = +1 } },
-    TAGKEYS(                        XK_1,                                       0)
-    TAGKEYS(                        XK_2,                                       1)
-    TAGKEYS(                        XK_3,                                       2)
-    TAGKEYS(                        XK_4,                                       3)
-    TAGKEYS(                        XK_5,                                       4)
-    TAGKEYS(                        XK_6,                                       5)
+    TAGKEYS(                        XK_1,                                       1)
+    TAGKEYS(                        XK_2,                                       2)
+    TAGKEYS(                        XK_3,                                       3)
+    TAGKEYS(                        XK_4,                                       4)
+    TAGKEYS(                        XK_5,                                       5)
+    TAGKEYS(                        XK_6,                                       6)
+    TAGKEYS(                        XK_7,                                       7)
+    TAGKEYS(                        XK_8,                                       8)
+    TAGKEYS(                        XK_9,                                       0)
     { MODKEY|ShiftMask,             XK_q,                       quit,           {0} },
 };
 
@@ -127,8 +124,9 @@ static Button buttons[] = {
     { ClkWinTitle,          MODKEY,         Button1,        pushup,         {0} }, 
     { ClkWinTitle,          MODKEY,         Button3,        pushdown,       {0} }, 
     { ClkWinTitle,          0,              Button2,        zoom,           {0} }, 
-	{ ClkWinTitle,          0,              Button3,        startgesture,   {0} },
-    { ClkStatusText,        0,              Button1,        spawn,          {.v = calcmd } },
+	{ ClkWinTitle,          0,              Button3,        killclient,     {0} },
+/*	{ ClkWinTitle,          0,              Button3,        startgesture,   {0} }, */
+    { ClkStatusText,        0,              Button1,        spawn,          {.v = remindcmd } },
 /*  { ClkClientWin,         MODKEY,         Button1,        movemouse,      {0} }, */
     { ClkClientWin,         MODKEY,         Button1,        tilemovemouse,  {0} },
     { ClkClientWin,         MODKEY,         Button2,        togglefloating, {0} },
@@ -140,5 +138,7 @@ static Button buttons[] = {
 };
 
 static Gesture gestures[] = {
-    {"d", spawn, SHCMD("easystroke send disable") },
+    {"n", spawn, SHCMD("xournal") },
+    {"l", pushdown, {0} },
+    {"r", pushup, {0} },
 };

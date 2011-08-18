@@ -14,9 +14,13 @@ options=(zipman)
 depends=('libx11' 'libxinerama')
 install=dwm.install
 source=(http://dl.suckless.org/dwm/dwm-$pkgver.tar.gz \
-	dwm.desktop \
-	dwm-5.8.2-combined.diff \
-	config.h)
+	    dwm.desktop \
+    	dwm-5.8.2-combined.diff \
+    	config.h)
+md5sums=('f0b422bfeaa812d66c6dd15c3cc92a6b'
+         '939f403a71b6e85261d09fc3412269ee'
+         'e9575a006d9ce87e96848f75aefee480'
+         '6610e0fb6a47a6091f5ae4db47acdb8c')
 
 build() {
   cd $srcdir/$pkgname-$pkgver
